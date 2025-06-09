@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
-import 'dart:async';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_mwebd/flutter_mwebd.dart' as flutter_mwebd;
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,55 +16,152 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late int sumResult;
-  late Future<int> sumAsyncResult;
+  final chainController = TextEditingController();
+  final dataDirController = TextEditingController();
+  final peerController = TextEditingController();
+  final proxyController = TextEditingController();
+  final portController = TextEditingController();
+
+  flutter_mwebd.MwebdServer? client;
 
   @override
-  void initState() {
-    super.initState();
-    sumResult = flutter_mwebd.sum(1, 2);
-    sumAsyncResult = flutter_mwebd.sumAsync(3, 4);
+  void dispose() {
+    chainController.dispose();
+    dataDirController.dispose();
+    peerController.dispose();
+    proxyController.dispose();
+    portController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const textStyle = TextStyle(fontSize: 25);
-    const spacerSmall = SizedBox(height: 10);
+    const spacerSmall = SizedBox(height: 16);
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Native Packages'),
-        ),
+        appBar: AppBar(title: const Text('Mwebd server example')),
         body: SingleChildScrollView(
           child: Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                const Text(
-                  'This calls a native function through FFI that is shipped as source in the package. '
-                  'The native code is built as part of the Flutter Runner build.',
-                  style: textStyle,
-                  textAlign: TextAlign.center,
-                ),
                 spacerSmall,
-                Text(
-                  'sum(1, 2) = $sumResult',
-                  style: textStyle,
-                  textAlign: TextAlign.center,
-                ),
-                spacerSmall,
-                FutureBuilder<int>(
-                  future: sumAsyncResult,
-                  builder: (BuildContext context, AsyncSnapshot<int> value) {
-                    final displayValue =
-                        (value.hasData) ? value.data : 'loading';
-                    return Text(
-                      'await sumAsync(3, 4) = $displayValue',
-                      style: textStyle,
-                      textAlign: TextAlign.center,
-                    );
-                  },
-                ),
+
+                if (client == null)
+                  Column(
+                    children: [
+                      TextField(
+                        controller: chainController,
+                        decoration: InputDecoration(
+                          labelText: "Chain",
+                          hintText: "mainnet",
+                        ),
+                      ),
+                      spacerSmall,
+                      TextField(
+                        controller: dataDirController,
+                        decoration: InputDecoration(
+                          labelText: "Data directory",
+                        ),
+                      ),
+                      spacerSmall,
+                      TextField(
+                        controller: peerController,
+                        decoration: InputDecoration(labelText: "Peer"),
+                      ),
+                      spacerSmall,
+                      TextField(
+                        controller: proxyController,
+                        decoration: InputDecoration(labelText: "Proxy"),
+                      ),
+                      spacerSmall,
+                      TextField(
+                        controller: portController,
+                        keyboardType: TextInputType.numberWithOptions(),
+                        decoration: InputDecoration(labelText: "Port"),
+                      ),
+                      spacerSmall,
+                      spacerSmall,
+                      spacerSmall,
+                      TextButton(
+                        onPressed: () async {
+                          try {
+                            if (Platform.isAndroid) {
+                              final appDir =
+                                  await getApplicationSupportDirectory();
+                              dataDirController.text =
+                                  "${appDir.path}/${dataDirController.text}";
+                            }
+
+                            final client = flutter_mwebd.MwebdServer(
+                              chain: chainController.text,
+                              dataDir: dataDirController.text,
+                              peer: peerController.text,
+                              proxy: proxyController.text,
+                              serverPort: int.parse(portController.text),
+                            );
+
+                            print("Creating server...");
+                            await client.createServer();
+                            print("server created");
+
+                            setState(() {
+                              this.client = client;
+                            });
+                          } catch (e, s) {
+                            print("$e\n$s");
+                          }
+                        },
+                        child: Text("Create server"),
+                      ),
+                    ],
+                  ),
+
+                if (client != null)
+                  Column(
+                    children: [
+                      TextButton(
+                        onPressed: () async {
+                          try {
+                            final status = await client!.getStatus();
+                            print(status);
+                          } catch (e, s) {
+                            print("$e\n$s");
+                          }
+                        },
+                        child: Text("Server status"),
+                      ),
+                      spacerSmall,
+                      TextButton(
+                        onPressed: () async {
+                          try {
+                            print("Starting server..");
+                            await client!.startServer();
+                            print("Server started");
+                          } catch (e, s) {
+                            print("$e\n$s");
+                          }
+                        },
+                        child: Text("Start server"),
+                      ),
+                      spacerSmall,
+                      TextButton(
+                        onPressed: () async {
+                          try {
+                            print("Stopping server...");
+                            await client!.stopServer();
+                            print("Server stopped");
+                            setState(() {
+                              client = null;
+                            });
+                          } catch (e, s) {
+                            print("$e\n$s");
+                          }
+                        },
+                        child: Text("Stop server"),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
