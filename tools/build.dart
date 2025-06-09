@@ -5,6 +5,7 @@ import 'package:path/path.dart' as path;
 
 import 'helpers/android.dart';
 import 'helpers/linux.dart';
+import 'helpers/macos.dart';
 import 'helpers/util.dart';
 import 'helpers/windows.dart';
 
@@ -50,6 +51,8 @@ void main(List<String> args) async {
 
     // platform specifics
     switch (platform) {
+      case "macos":
+        return await macos(outputDir.path);
       case "linux":
         return await linux(outputDir.path);
       case "windows":
