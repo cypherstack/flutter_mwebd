@@ -6,3 +6,8 @@ A Flutter FFI package for [https://github.com/Cyrix126/mwebd-wrapper](https://gi
 
 1. **Install Go**  
    Follow the instructions here: [https://go.dev/doc/install](https://go.dev/doc/install)
+
+
+## Limitations
+
+ - No iOS simulator support by default

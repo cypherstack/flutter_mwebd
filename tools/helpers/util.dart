@@ -12,11 +12,13 @@ Future<void> runAsync(
   String command,
   List<String> arguments, {
   Map<String, String>? environment,
+  bool runInShell = false,
 }) async {
   final process = await Process.start(
     command,
     arguments,
     environment: environment,
+    runInShell: runInShell,
   );
 
   process.stdout.transform(SystemEncoding().decoder).listen((e) => l(e));

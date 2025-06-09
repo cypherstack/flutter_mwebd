@@ -38,3 +38,4 @@ src/build/
 src/windows/
 src/linux/
 src/android/
+ios/flutter_mwebd.framework

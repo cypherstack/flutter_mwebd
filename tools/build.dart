@@ -4,6 +4,7 @@ import 'package:args/args.dart';
 import 'package:path/path.dart' as path;
 
 import 'helpers/android.dart';
+import 'helpers/ios.dart';
 import 'helpers/linux.dart';
 import 'helpers/macos.dart';
 import 'helpers/util.dart';
@@ -34,6 +35,9 @@ void main(List<String> args) async {
       await outputDir.create(recursive: true);
     }
 
+    // ios specific
+    final toolsPath = path.join(Directory.current.path, "tools");
+
     final buildDir = Directory(argResults.option("build-dir")!);
 
     if (!buildDir.existsSync()) {
@@ -59,6 +63,8 @@ void main(List<String> args) async {
         return await windows(outputDir.path);
       case "android":
         return await android(outputDir.path, argResults);
+      case "ios":
+        return await ios(outputDir, repoDir, toolsPath);
     }
   } catch (e, s) {
     l("$e\n$s");
