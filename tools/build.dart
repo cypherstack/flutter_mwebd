@@ -5,6 +5,7 @@ import 'package:path/path.dart' as path;
 
 import 'helpers/linux.dart';
 import 'helpers/util.dart';
+import 'helpers/windows.dart';
 
 const kRepoUrl = "https://github.com/Cyrix126/mwebd-wrapper";
 const kCommit = "20130a3f3e79ee82676aa98d85ac1997452a2d80";
@@ -50,6 +51,8 @@ void main(List<String> args) async {
     switch (platform) {
       case "linux":
         return await linux(outputDir.path);
+      case "windows":
+        return await windows(outputDir.path);
     }
   } catch (e, s) {
     l("$e\n$s");
