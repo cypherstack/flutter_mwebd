@@ -36,7 +36,7 @@ void main(List<String> args) async {
     }
 
     // ios specific
-    final toolsPath = path.join(Directory.current.path, "tools");
+    final toolsPath = path.join(Directory.current.path, "tool");
 
     final buildDir = Directory(argResults.option("build-dir")!);
 

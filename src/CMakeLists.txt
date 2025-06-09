@@ -50,7 +50,7 @@ if (DEFINED BUILD_FOR_SYSTEM_NAME)
     add_custom_command(
             OUTPUT "${GO_SHARED_LIB}"
             COMMAND dart pub get
-            COMMAND dart tools/build.dart
+            COMMAND dart tool/build.dart
             -p "${BUILD_FOR_SYSTEM_NAME}"
             -o "${BUILD_OUTPUT_DIR}"
             -n "${CMAKE_ANDROID_NDK}"
@@ -73,7 +73,7 @@ if (DEFINED BUILD_FOR_SYSTEM_NAME)
     add_custom_command(
             OUTPUT "${GO_SHARED_LIB}"
             COMMAND dart pub get
-            COMMAND dart tools/build.dart
+            COMMAND dart tool/build.dart
             -p "${BUILD_FOR_SYSTEM_NAME}"
             -o "${BUILD_OUTPUT_DIR}"
             -b "${DART_BUILD_DIR}"
