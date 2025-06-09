@@ -31,3 +31,10 @@ migrate_working_dir/
 .flutter-plugins
 .flutter-plugins-dependencies
 build/
+
+src/libmwebd.h
+src/libmwebd_32.h
+src/build/
+src/windows/
+src/linux/
+src/android/

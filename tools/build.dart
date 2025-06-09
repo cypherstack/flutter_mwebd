@@ -1,0 +1,58 @@
+import 'dart:io';
+
+import 'package:args/args.dart';
+import 'package:path/path.dart' as path;
+
+import 'helpers/linux.dart';
+import 'helpers/util.dart';
+
+const kRepoUrl = "https://github.com/Cyrix126/mwebd-wrapper";
+const kCommit = "20130a3f3e79ee82676aa98d85ac1997452a2d80";
+
+void main(List<String> args) async {
+  try {
+    ArgParser parser =
+        ArgParser()
+          ..addOption(
+            "platform",
+            abbr: "p",
+            allowed: ["android", "ios", "macos", "linux", "windows"],
+            mandatory: true,
+          )
+          ..addOption("build-dir", abbr: "b", mandatory: true)
+          ..addOption("output-dir", abbr: "o", mandatory: true)
+          ..addOption("android_ndk", abbr: "n", mandatory: false)
+          ..addOption("android_platform", abbr: "a", mandatory: false);
+    final argResults = parser.parse(args);
+    final platform = argResults.option("platform")!;
+    final outputDirPath = argResults.option("output-dir")!;
+    final outputDir = Directory(outputDirPath);
+    if (!outputDir.existsSync()) {
+      await outputDir.create(recursive: true);
+    }
+
+    final buildDir = Directory(argResults.option("build-dir")!);
+
+    if (!buildDir.existsSync()) {
+      await buildDir.create(recursive: true);
+    }
+    Directory.current = buildDir;
+
+    // clone and checkout
+    final repoDir = Directory(path.join(buildDir.path, "mwebd-wrapper"));
+    if (!repoDir.existsSync()) {
+      await runAsync("git", ["clone", kRepoUrl]);
+    }
+    Directory.current = repoDir;
+    await runAsync("git", ["checkout", kCommit]);
+
+    // platform specifics
+    switch (platform) {
+      case "linux":
+        return await linux(outputDir.path);
+    }
+  } catch (e, s) {
+    l("$e\n$s");
+    exit(1);
+  }
+}

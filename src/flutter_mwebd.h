@@ -15,16 +15,22 @@
 #define FFI_PLUGIN_EXPORT
 #endif
 
-// A very short-lived native function.
-//
-// For very short-lived functions, it is fine to call them on the main isolate.
-// They will block the Dart execution while running the native function, so
-// only do this for native functions which are guaranteed to be short-lived.
-FFI_PLUGIN_EXPORT int sum(int a, int b);
+// Check 64-bit platforms
+#if defined(_WIN64) || \
+    defined(__x86_64__) || defined(__x86_64) || defined(__amd64__) || defined(__amd64) || \
+    defined(__aarch64__) || defined(_M_X64) || defined(_M_AMD64) || \
+    defined(__powerpc64__) || defined(__ppc64__) || defined(__LP64__) || defined(_LP64)
+#include "libmwebd.h"
+#elif defined(_WIN32) || \
+      defined(__i386__) || defined(__i386) || defined(__i686__) || defined(_M_IX86) || \
+      defined(__arm__) || defined(__thumb__) || defined(_M_ARM) || \
+      defined(__powerpc__) || defined(__ppc__) || defined(__ILP32__)
+#include "libmwebd_32.h"
+#else
+#error "Unknown architecture, cannot determine 32-bit or 64-bit"
+#endif
 
-// A longer lived native function, which occupies the thread calling it.
-//
-// Do not call these kind of native functions in the main isolate. They will
-// block Dart execution. This will cause dropped frames in Flutter applications.
-// Instead, call these native functions on a separate isolate.
-FFI_PLUGIN_EXPORT int sum_long_running(int a, int b);
+FFI_PLUGIN_EXPORT uintptr_t CreateServer(char* chain, char* dataDir, char* peer, char* proxy);
+FFI_PLUGIN_EXPORT int StartServer(uintptr_t id, int port);
+FFI_PLUGIN_EXPORT void StopServer(uintptr_t id);
+FFI_PLUGIN_EXPORT StatusResponse* Status(uintptr_t id);
