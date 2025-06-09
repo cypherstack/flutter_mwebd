@@ -86,7 +86,9 @@ class _MyAppState extends State<MyApp> {
                       TextButton(
                         onPressed: () async {
                           try {
-                            if (Platform.isAndroid) {
+                            if (Platform.isAndroid ||
+                                Platform.isIOS ||
+                                Platform.isMacOS) {
                               final appDir =
                                   await getApplicationSupportDirectory();
                               dataDirController.text =
