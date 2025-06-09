@@ -11,7 +11,7 @@ import 'helpers/util.dart';
 import 'helpers/windows.dart';
 
 const kRepoUrl = "https://github.com/Cyrix126/mwebd-wrapper";
-const kCommit = "20130a3f3e79ee82676aa98d85ac1997452a2d80";
+const kCommit = "7685af456b0ed6d0aac723d1db28d19e050879af";
 
 void main(List<String> args) async {
   try {
