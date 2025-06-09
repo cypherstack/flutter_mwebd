@@ -1,7 +1,8 @@
 name: flutter_mwebd
-description: "A new Flutter FFI plugin project."
-version: 0.0.1
-homepage:
+description: "A Flutter FFI based package for https://github.com/Cyrix126/mwebd-wrapper"
+version: 0.0.1-pre.0
+homepage: https://github.com/cypherstack/flutter_mwebd
+issue_tracker: https://github.com/cypherstack/flutter_mwebd/issues
 
 environment:
   sdk: ^3.7.2
