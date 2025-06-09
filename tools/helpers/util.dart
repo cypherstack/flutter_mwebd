@@ -30,3 +30,21 @@ Future<void> runAsync(
     exit(exitCode);
   }
 }
+
+String getAndroidClangPath({
+  required String ndkPath,
+  required String abi,
+  required int platformVersion,
+}) {
+  final base = "$ndkPath/toolchains/llvm/prebuilt/linux-x86_64/bin";
+
+  final triple = switch (abi) {
+    "arm64-v8a" => "aarch64-linux-android",
+    "armeabi-v7a" => "armv7a-linux-androideabi",
+    "x86" => "i686-linux-android",
+    "x86_64" => "x86_64-linux-android",
+    _ => throw ArgumentError("Unsupported ABI: $abi"),
+  };
+
+  return "$base/$triple$platformVersion-clang";
+}

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:path/path.dart' as path;
 
+import 'helpers/android.dart';
 import 'helpers/linux.dart';
 import 'helpers/util.dart';
 import 'helpers/windows.dart';
@@ -53,6 +54,8 @@ void main(List<String> args) async {
         return await linux(outputDir.path);
       case "windows":
         return await windows(outputDir.path);
+      case "android":
+        return await android(outputDir.path, argResults);
     }
   } catch (e, s) {
     l("$e\n$s");
