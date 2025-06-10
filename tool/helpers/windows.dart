@@ -1,5 +1,3 @@
-import 'package:path/path.dart' as path;
-
 import 'util.dart';
 
 Future<void> windows(String outputDirPath) async {
@@ -8,7 +6,7 @@ Future<void> windows(String outputDirPath) async {
     [
       "build",
       "-o",
-      path.join(outputDirPath, "libmwebd.dll"),
+      join(outputDirPath, "libmwebd.dll"),
       "-buildmode=c-shared",
       ".",
     ],

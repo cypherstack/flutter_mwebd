@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:path/path.dart' as path;
-
 import 'util.dart';
 
 Future<void> macos(String outputDirPath) async {
@@ -10,7 +8,7 @@ Future<void> macos(String outputDirPath) async {
     [
       "build",
       "-o",
-      path.join(outputDirPath, "libmwebd.dylib"),
+      join(outputDirPath, "libmwebd.dylib"),
       "-buildmode=c-shared",
       ".",
     ],
@@ -18,7 +16,7 @@ Future<void> macos(String outputDirPath) async {
   );
   await createFramework(
     frameworkName: "flutter_mwebd",
-    pathToDylib: path.join(outputDirPath, "libmwebd.dylib"),
+    pathToDylib: join(outputDirPath, "libmwebd.dylib"),
     targetDirFrameworks: outputDirPath,
   );
 }
@@ -30,7 +28,7 @@ Future<void> createFramework({
 }) async {
   // Create the framework directory
   final frameworkDir = Directory(
-    path.join(targetDirFrameworks, "$frameworkName.framework"),
+    join(targetDirFrameworks, "$frameworkName.framework"),
   );
   await frameworkDir.create(recursive: true);
 
@@ -41,13 +39,13 @@ Future<void> createFramework({
     "-create",
     pathToDylib,
     "-output",
-    path.join(frameworkDir.path, frameworkName),
+    join(frameworkDir.path, frameworkName),
   ]);
   await runAsync("install_name_tool", [
     "-id",
 
-    path.join("@rpath", "$frameworkName.framework", frameworkName),
-    path.join(frameworkDir.path, frameworkName),
+    join("@rpath", "$frameworkName.framework", frameworkName),
+    join(frameworkDir.path, frameworkName),
   ]);
   Directory.current = temp;
 

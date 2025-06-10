@@ -1,17 +1,18 @@
-import 'package:args/args.dart';
-import 'package:path/path.dart' as path;
+import 'dart:io';
 
 import 'util.dart';
 
-Future<void> android(String outputDirPath, ArgResults argResults) async {
-  final abi = path.basename(outputDirPath);
-  final ndk = argResults.option("android_ndk")!;
-  final platform = argResults.option("android_platform")!;
+Future<void> android(
+  String outputDirPath,
+  String ndk,
+  String androidPlatform,
+) async {
+  final abi = outputDirPath.split(Platform.pathSeparator).last;
 
   final cc = getAndroidClangPath(
     ndkPath: ndk,
     abi: abi,
-    platformVersion: int.parse(platform.split("-").last),
+    platformVersion: int.parse(androidPlatform.split("-").last),
   );
 
   final arch = switch (abi) {
@@ -27,7 +28,7 @@ Future<void> android(String outputDirPath, ArgResults argResults) async {
     [
       "build",
       "-o",
-      path.join(outputDirPath, "libmwebd.so"),
+      join(outputDirPath, "libmwebd.so"),
       "-buildmode=c-shared",
       ".",
     ],

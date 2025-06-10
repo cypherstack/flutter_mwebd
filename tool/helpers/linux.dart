@@ -1,5 +1,3 @@
-import 'package:path/path.dart' as path;
-
 import 'util.dart';
 
 Future<void> linux(String outputDirPath) async {
@@ -8,7 +6,7 @@ Future<void> linux(String outputDirPath) async {
     [
       "build",
       "-o",
-      path.join(outputDirPath, "libmwebd.so"),
+      join(outputDirPath, "libmwebd.so"),
       "-buildmode=c-shared",
       ".",
     ],

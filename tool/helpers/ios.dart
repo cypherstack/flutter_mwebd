@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:path/path.dart' as path;
-
 import 'util.dart';
 
 Future<void> ios(
@@ -23,7 +21,7 @@ Future<void> ios(
   //   inputLib: "${repoDir.path}/libmwebd_arm64_sim.a",
   //   arch: "arm64", // arm64 or amd64
   //   sdkName: "iphonesimulator", // "iphoneos" or "iphonesimulator"
-  //   header: path.join(repoDir.path, "libmwebd_arm64_sim.h"),
+  //   header: join(repoDir.path, "libmwebd_arm64_sim.h"),
   //   outputDir: outputDir.parent.path,
   //   frameworkName: "flutter_mwebd",
   // );
@@ -38,7 +36,7 @@ Future<void> ios(
     inputLib: "${repoDir.path}/libmwebd_arm64.a",
     arch: "arm64",
     sdkName: "iphoneos", // "iphoneos" or "iphonesimulator"
-    header: path.join(repoDir.path, "libmwebd_arm64.h"),
+    header: join(repoDir.path, "libmwebd_arm64.h"),
     outputDir: outputDir.parent.path,
     frameworkName: "flutter_mwebd",
   );
@@ -56,8 +54,7 @@ Future<void> createFramework({
   if (tmp.existsSync()) tmp.deleteSync(recursive: true);
   tmp.createSync(recursive: true);
 
-  final tmpDir = Directory(path.join(tmp.path, arch))
-    ..createSync(recursive: true);
+  final tmpDir = Directory(join(tmp.path, arch))..createSync(recursive: true);
 
   Future<void> buildDylib(
     String arch,
@@ -65,7 +62,7 @@ Future<void> createFramework({
     String sdk,
     Directory outDir,
   ) async {
-    final dylibPath = path.join(outDir.path, frameworkName);
+    final dylibPath = join(outDir.path, frameworkName);
     await runAsync("clang", [
       "-dynamiclib",
       "-arch",
@@ -90,24 +87,22 @@ Future<void> createFramework({
   final sdkPath = await _sdkPath(sdkName);
   await buildDylib(arch, inputLib, sdkPath, tmpDir);
 
-  final outFramework = Directory(
-    path.join(outputDir, "$frameworkName.framework"),
-  );
+  final outFramework = Directory(join(outputDir, "$frameworkName.framework"));
   if (outFramework.existsSync()) outFramework.deleteSync(recursive: true);
   outFramework.createSync(recursive: true);
 
   // Copy dylib binary
-  final dylibOut = path.join(outFramework.path, frameworkName);
-  File(path.join(tmpDir.path, frameworkName)).copySync(dylibOut);
+  final dylibOut = join(outFramework.path, frameworkName);
+  File(join(tmpDir.path, frameworkName)).copySync(dylibOut);
 
   l("Adding headers...");
-  final headersDir = Directory(path.join(outFramework.path, "Headers"))
+  final headersDir = Directory(join(outFramework.path, "Headers"))
     ..createSync();
-  File(header).copySync(path.join(headersDir.path, "$frameworkName.h"));
+  File(header).copySync(join(headersDir.path, "$frameworkName.h"));
 
   l("Writing Info.plist...");
   File(
-    path.join(outFramework.path, "Info.plist"),
+    join(outFramework.path, "Info.plist"),
   ).writeAsStringSync(_iosPlist(frameworkName));
 
   l("Framework created at: ${outFramework.path}");
@@ -138,7 +133,7 @@ Future<void> buildGoArchiveForIOS({
           : "$cArch-apple-ios$minVersion-simulator";
 
   // find clang
-  final clang = path.join(toolsPath, "ios_clang_wrapper.sh");
+  final clang = join(toolsPath, "ios_clang_wrapper.sh");
 
   final sdkPath = await _sdkPath(sdk);
 

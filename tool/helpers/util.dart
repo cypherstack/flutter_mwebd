@@ -50,3 +50,24 @@ String getAndroidClangPath({
 
   return "$base/$triple$platformVersion-clang";
 }
+
+String join(String part1, [String? part2, String? part3, String? part4]) {
+  final sep = Platform.pathSeparator;
+
+  final parts = [
+    part2,
+    part3,
+    part4,
+  ].whereType<String>().where((e) => e.isNotEmpty);
+
+  String result = part1;
+  for (final part in parts) {
+    if (result.endsWith(sep)) {
+      result += part;
+    } else {
+      result += "$sep$part";
+    }
+  }
+
+  return result;
+}

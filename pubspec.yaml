@@ -1,6 +1,6 @@
 name: flutter_mwebd
 description: "A Flutter FFI based package for https://github.com/Cyrix126/mwebd-wrapper"
-version: 0.0.1-pre.0
+version: 0.0.1-pre.1
 homepage: https://github.com/cypherstack/flutter_mwebd
 issue_tracker: https://github.com/cypherstack/flutter_mwebd/issues
 
@@ -19,8 +19,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  path: ^1.9.1
-  args: ^2.7.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

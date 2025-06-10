@@ -49,7 +49,6 @@ if (DEFINED BUILD_FOR_SYSTEM_NAME)
 
     add_custom_command(
             OUTPUT "${GO_SHARED_LIB}"
-            COMMAND dart pub get
             COMMAND dart tool/build.dart
             -p "${BUILD_FOR_SYSTEM_NAME}"
             -o "${BUILD_OUTPUT_DIR}"
@@ -72,7 +71,6 @@ if (DEFINED BUILD_FOR_SYSTEM_NAME)
     # Generic Dart build for non-Android
     add_custom_command(
             OUTPUT "${GO_SHARED_LIB}"
-            COMMAND dart pub get
             COMMAND dart tool/build.dart
             -p "${BUILD_FOR_SYSTEM_NAME}"
             -o "${BUILD_OUTPUT_DIR}"

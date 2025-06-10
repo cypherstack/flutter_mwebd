@@ -1,8 +1,5 @@
 import 'dart:io';
 
-import 'package:args/args.dart';
-import 'package:path/path.dart' as path;
-
 import 'helpers/android.dart';
 import 'helpers/ios.dart';
 import 'helpers/linux.dart';
@@ -15,30 +12,32 @@ const kCommit = "7685af456b0ed6d0aac723d1db28d19e050879af";
 
 void main(List<String> args) async {
   try {
-    ArgParser parser =
-        ArgParser()
-          ..addOption(
-            "platform",
-            abbr: "p",
-            allowed: ["android", "ios", "macos", "linux", "windows"],
-            mandatory: true,
-          )
-          ..addOption("build-dir", abbr: "b", mandatory: true)
-          ..addOption("output-dir", abbr: "o", mandatory: true)
-          ..addOption("android_ndk", abbr: "n", mandatory: false)
-          ..addOption("android_platform", abbr: "a", mandatory: false);
-    final argResults = parser.parse(args);
-    final platform = argResults.option("platform")!;
-    final outputDirPath = argResults.option("output-dir")!;
-    final outputDir = Directory(outputDirPath);
+    final Map<String, String> options = {};
+
+    for (int i = 0; i < args.length; i++) {
+      final arg = args[i];
+      if (arg.startsWith('--') || arg.startsWith('-')) {
+        final key = arg.replaceFirst(RegExp(r'^--?'), '');
+        final next = i + 1 < args.length ? args[i + 1] : null;
+
+        if (next != null && !next.startsWith('-')) {
+          options[key] = next;
+          i++;
+        } else {
+          options[key] = '';
+        }
+      }
+    }
+
+    final platform = options['p'] ?? options['platform'];
+    final outputDirPath = options['o'] ?? options['output-dir'];
+    final buildDirPath = options['b'] ?? options['build-dir'];
+    final outputDir = Directory(outputDirPath!);
     if (!outputDir.existsSync()) {
       await outputDir.create(recursive: true);
     }
 
-    // ios specific
-    final toolsPath = path.join(Directory.current.path, "tool");
-
-    final buildDir = Directory(argResults.option("build-dir")!);
+    final buildDir = Directory(buildDirPath!);
 
     if (!buildDir.existsSync()) {
       await buildDir.create(recursive: true);
@@ -46,10 +45,11 @@ void main(List<String> args) async {
     Directory.current = buildDir;
 
     // clone and checkout
-    final repoDir = Directory(path.join(buildDir.path, "mwebd-wrapper"));
+    final repoDir = Directory(join(Directory.current.path, "mwebd-wrapper"));
     if (!repoDir.existsSync()) {
       await runAsync("git", ["clone", kRepoUrl]);
     }
+
     Directory.current = repoDir;
     await runAsync("git", ["checkout", kCommit]);
 
@@ -62,8 +62,12 @@ void main(List<String> args) async {
       case "windows":
         return await windows(outputDir.path);
       case "android":
-        return await android(outputDir.path, argResults);
+        final ndk = options['n'] ?? options['android_ndk'];
+        final androidPlatform = options['a'] ?? options['android_platform'];
+
+        return await android(outputDir.path, ndk!, androidPlatform!);
       case "ios":
+        final toolsPath = join(Directory.current.path, "tool");
         return await ios(outputDir, repoDir, toolsPath);
     }
   } catch (e, s) {
