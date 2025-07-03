@@ -16,3 +16,8 @@
 ## 0.0.1-pre.3
 
 * Fix ios script path build issue
+
+
+## 0.0.1-pre.4
+
+* make apple happy

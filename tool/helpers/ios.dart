@@ -80,6 +80,7 @@ Future<void> createFramework({
       "-framework",
       "Security",
       "-lresolv",
+      "-mios-version-min=16.0",
     ]);
   }
 
@@ -186,7 +187,7 @@ String _iosPlist(String frameworkName) => '''
         <key>CFBundleExecutable</key>
         <string>$frameworkName</string>
         <key>CFBundleIdentifier</key>
-        <string>com.cypherstack.$frameworkName</string>
+        <string>com.cypherstack.${frameworkName.replaceAll("_", "-")}</string>
         <key>CFBundleInfoDictionaryVersion</key>
         <string>6.0</string>
         <key>CFBundleName</key>
