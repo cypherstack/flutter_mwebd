@@ -67,7 +67,10 @@ void main(List<String> args) async {
 
         return await android(outputDir.path, ndk!, androidPlatform!);
       case "ios":
-        final toolsPath = join(Directory.current.path, "tool");
+        final toolsPath = join(
+          Directory.current.parent.parent.parent.path,
+          "tool",
+        );
         return await ios(outputDir, repoDir, toolsPath);
     }
   } catch (e, s) {
