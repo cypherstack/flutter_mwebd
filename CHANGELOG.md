@@ -21,3 +21,8 @@
 ## 0.0.1-pre.4
 
 * make apple happy
+
+
+## 0.0.1-pre.5
+
+* fix windows

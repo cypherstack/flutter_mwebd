@@ -31,6 +31,7 @@ if (DEFINED BUILD_FOR_SYSTEM_NAME)
     set(GO_SHARED_LIB "${BUILD_OUTPUT_DIR}/libmwebd.so")
   elseif (BUILD_FOR_SYSTEM_NAME STREQUAL "windows")
     set(GO_SHARED_LIB "${BUILD_OUTPUT_DIR}/libmwebd.dll")
+    set(LIBMWEBD_PATH "${GO_SHARED_LIB}" PARENT_SCOPE)
   elseif (BUILD_FOR_SYSTEM_NAME STREQUAL "android")
     set(ANDROID_ABI_SUBDIR "${ANDROID_ABI}")
     set(BUILD_OUTPUT_DIR "${BUILD_OUTPUT_DIR}/${ANDROID_ABI_SUBDIR}")
@@ -67,8 +68,18 @@ if (DEFINED BUILD_FOR_SYSTEM_NAME)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${GO_SHARED_LIB}" "${JNI_LIBS_DIR}/libmwebd.so"
             COMMENT "Copying libmwebd.so to jniLibs for Android (${ANDROID_ABI})"
     )
+  elseif (BUILD_FOR_SYSTEM_NAME STREQUAL "windows")
+    add_custom_command(
+            OUTPUT "${GO_SHARED_LIB}"
+            COMMAND dart tool/build.dart
+            -p "${BUILD_FOR_SYSTEM_NAME}"
+            -o "${BUILD_OUTPUT_DIR}"
+            -b "${DART_BUILD_DIR}"
+            WORKING_DIRECTORY "${PLUGIN_ROOT}"
+            COMMENT "Building Go library for ${BUILD_FOR_SYSTEM_NAME} using Dart"
+            VERBATIM
+    )
   else ()
-    # Generic Dart build for non-Android
     add_custom_command(
             OUTPUT "${GO_SHARED_LIB}"
             COMMAND dart tool/build.dart
@@ -88,18 +99,39 @@ if (DEFINED BUILD_FOR_SYSTEM_NAME)
             DEPENDS "${GO_SHARED_LIB}"
     )
 
-    add_library(mwebd_external SHARED IMPORTED GLOBAL)
-    set_target_properties(mwebd_external PROPERTIES
-            IMPORTED_LOCATION "${GO_SHARED_LIB}"
-    )
+    if (BUILD_FOR_SYSTEM_NAME STREQUAL "windows")
+      set(GO_IMPORT_LIB "${BUILD_OUTPUT_DIR}/libmwebd.lib")
 
-    add_dependencies(mwebd_external go_build)
-    add_dependencies(flutter_mwebd mwebd_external)
+      add_custom_command(
+              OUTPUT "${GO_IMPORT_LIB}"
+              DEPENDS "${GO_SHARED_LIB}"
+              COMMENT "Assuming import library was generated in build script"
+      )
 
+      add_library(mwebd_external STATIC IMPORTED GLOBAL)
+      set_target_properties(mwebd_external PROPERTIES
+              IMPORTED_LOCATION "${GO_IMPORT_LIB}"
+      )
 
-    if (NOT BUILD_FOR_SYSTEM_NAME STREQUAL "android")
+      add_dependencies(mwebd_external go_build)
+      add_dependencies(flutter_mwebd mwebd_external)
+
       target_link_libraries(flutter_mwebd PRIVATE mwebd_external)
-    endif ()
+    else()
+      add_library(mwebd_external SHARED IMPORTED GLOBAL)
+      set_target_properties(mwebd_external PROPERTIES
+              IMPORTED_LOCATION "${GO_SHARED_LIB}"
+      )
+
+      add_dependencies(mwebd_external go_build)
+      add_dependencies(flutter_mwebd mwebd_external)
+
+      if (NOT BUILD_FOR_SYSTEM_NAME STREQUAL "android")
+        target_link_libraries(flutter_mwebd PRIVATE mwebd_external)
+      endif()
+    endif()
+
+
   else ()
     message(STATUS "Go build failed: GO_SHARED_LIB not set")
   endif ()
