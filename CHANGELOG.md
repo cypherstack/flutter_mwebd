@@ -26,3 +26,8 @@
 ## 0.0.1-pre.5
 
 * fix windows
+
+
+## 0.0.1-pre.6
+
+* fix linux

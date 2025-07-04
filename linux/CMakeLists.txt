@@ -19,5 +19,6 @@ set(flutter_mwebd_bundled_libraries
   # Defined in ../src/CMakeLists.txt.
   # This can be changed to accommodate different builds.
   $<TARGET_FILE:flutter_mwebd>
+  ${LIBMWEBD_PATH}
   PARENT_SCOPE
 )

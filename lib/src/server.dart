@@ -21,7 +21,7 @@ final DynamicLibrary _dylib = () {
     return DynamicLibrary.open("libmwebd.so");
   }
   if (Platform.isLinux) {
-    return DynamicLibrary.open("lib$_libName.so");
+    return DynamicLibrary.open("libmwebd.so");
   }
   if (Platform.isWindows) {
     return DynamicLibrary.open("libmwebd.dll");
