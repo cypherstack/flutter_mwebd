@@ -33,4 +33,4 @@
 FFI_PLUGIN_EXPORT uintptr_t CreateServer(char* chain, char* dataDir, char* peer, char* proxy);
 FFI_PLUGIN_EXPORT int StartServer(uintptr_t id, int port);
 FFI_PLUGIN_EXPORT void StopServer(uintptr_t id);
-FFI_PLUGIN_EXPORT StatusResponse* Status(uintptr_t id);
+FFI_PLUGIN_EXPORT void Status(uintptr_t id, StatusResponse* out);

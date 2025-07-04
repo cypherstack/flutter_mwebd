@@ -74,15 +74,17 @@ class FlutterMwebdBindings {
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.UintPtr)>>('StopServer');
   late final _StopServer = _StopServerPtr.asFunction<void Function(int)>();
 
-  ffi.Pointer<StatusResponse> Status(int id) {
-    return _Status(id);
+  void Status(int id, ffi.Pointer<StatusResponse> out) {
+    return _Status(id, out);
   }
 
   late final _StatusPtr = _lookup<
-    ffi.NativeFunction<ffi.Pointer<StatusResponse> Function(ffi.UintPtr)>
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.UintPtr, ffi.Pointer<StatusResponse>)
+    >
   >('Status');
   late final _Status =
-      _StatusPtr.asFunction<ffi.Pointer<StatusResponse> Function(int)>();
+      _StatusPtr.asFunction<void Function(int, ffi.Pointer<StatusResponse>)>();
 }
 
 final class StatusResponse extends ffi.Struct {

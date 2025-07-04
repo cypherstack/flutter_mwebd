@@ -128,21 +128,23 @@ class MwebdServer {
       throw MwebdServerNotCreatedException();
     }
 
-    final response = await Isolate.run(() {
-      return _bindings.Status(_serverId!);
+    return await Isolate.run(() {
+      final response = calloc<StatusResponse>();
+
+      try {
+        _bindings.Status(_serverId!, response);
+
+        final status = Status(
+          blockHeaderHeight: response.ref.block_header_height,
+          mwebHeaderHeight: response.ref.mweb_header_height,
+          mwebUtxosHeight: response.ref.mweb_utxos_height,
+          blockTime: response.ref.block_time,
+        );
+
+        return status;
+      } finally {
+        calloc.free(response);
+      }
     });
-
-    try {
-      final status = Status(
-        blockHeaderHeight: response.ref.block_header_height,
-        mwebHeaderHeight: response.ref.mweb_header_height,
-        mwebUtxosHeight: response.ref.mweb_utxos_height,
-        blockTime: response.ref.block_time,
-      );
-
-      return status;
-    } finally {
-      malloc.free(response);
-    }
   }
 }

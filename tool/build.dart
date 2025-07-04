@@ -7,8 +7,9 @@ import 'helpers/macos.dart';
 import 'helpers/util.dart';
 import 'helpers/windows.dart';
 
-const kRepoUrl = "https://github.com/Cyrix126/mwebd-wrapper";
-const kCommit = "7685af456b0ed6d0aac723d1db28d19e050879af";
+// mirror of https://github.com/Cyrix126/mwebd-wrapper
+const kRepoUrl = "https://github.com/cypherstack/mwebd-wrapper";
+const kCommit = "05b253291cdbf00944b39f3aa1e940b5404ae1c4";
 
 void main(List<String> args) async {
   try {
