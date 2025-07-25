@@ -31,3 +31,8 @@
 ## 0.0.1-pre.6
 
 * fix linux
+
+
+## 0.0.1-pre.7
+
+* fix some arm macos systems issue (temp bandaid)

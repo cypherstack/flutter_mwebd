@@ -12,7 +12,7 @@ Future<void> macos(String outputDirPath) async {
       "-buildmode=c-shared",
       ".",
     ],
-    environment: {"CGO_ENABLED": "1"},
+    environment: {"CGO_ENABLED": "1", "GOARCH": "arm64"},
   );
   await createFramework(
     frameworkName: "flutter_mwebd",
