@@ -36,3 +36,8 @@
 ## 0.0.1-pre.7
 
 * fix some arm macos systems issue (temp bandaid)
+
+
+## 0.0.1-pre.8
+
+* android 16KB page size
