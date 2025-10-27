@@ -1,6 +1,6 @@
 name: flutter_mwebd
 description: "A Flutter FFI based package for https://github.com/Cyrix126/mwebd-wrapper"
-version: 0.0.1-pre.8
+version: 0.0.1-pre.9
 homepage: https://github.com/cypherstack/flutter_mwebd
 issue_tracker: https://github.com/cypherstack/flutter_mwebd/issues
 

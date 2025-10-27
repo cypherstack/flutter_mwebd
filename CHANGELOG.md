@@ -41,3 +41,8 @@
 ## 0.0.1-pre.8
 
 * android 16KB page size
+
+
+## 0.0.1-pre.9
+
+* fix macos framework structure

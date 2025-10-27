@@ -13,7 +13,9 @@ const String _libName = "flutter_mwebd";
 
 /// The dynamic library in which the symbols for [MwebdClientBindings] can be found.
 final DynamicLibrary _dylib = () {
-  if (Platform.isMacOS || Platform.isIOS) {
+  if (Platform.isMacOS) {
+    return DynamicLibrary.process();
+  } else if (Platform.isIOS) {
     return DynamicLibrary.open("$_libName.framework/$_libName");
   }
   if (Platform.isAndroid) {
