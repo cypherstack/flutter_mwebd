@@ -46,3 +46,8 @@
 ## 0.0.1-pre.9
 
 * fix macos framework structure
+
+
+## 0.0.1-pre.10
+
+* clean build dir during native build
