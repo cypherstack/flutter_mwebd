@@ -34,9 +34,10 @@ void main(List<String> args) async {
     final outputDirPath = options['o'] ?? options['output-dir'];
     final buildDirPath = options['b'] ?? options['build-dir'];
     final outputDir = Directory(outputDirPath!);
-    if (!outputDir.existsSync()) {
-      await outputDir.create(recursive: true);
+    if (outputDir.existsSync()) {
+      await outputDir.delete(recursive: true);
     }
+    await outputDir.create(recursive: true);
 
     final buildDir = Directory(buildDirPath!);
 

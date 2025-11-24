@@ -45,4 +45,14 @@
 
 ## 0.0.1-pre.9
 
+* fix macos framework structure
+
+
+## 0.0.1-pre.10
+
+* clean build dir during native build
+
+
+## 0.0.1-pre.11
+
 * update mwebd to v0.1.17
