@@ -18,12 +18,16 @@ A new Flutter FFI plugin project.
   # paths, so Classes contains a forwarder C file that relatively imports
   # `../src/*` so that the C sources can be shared among all target platforms.
   s.source           = { :path => '.' }
-  s.vendored_frameworks = 'flutter_mwebd.framework'
+  # flutter_mwebd.xcframework (arm64 device + arm64 simulator slices) is
+  # produced by run_build.sh at pod install time.
+  s.vendored_frameworks = 'flutter_mwebd.xcframework'
   s.prepare_command = './run_build.sh'
   s.dependency 'Flutter'
   s.platform = :ios, '12.0'
 
-  # Flutter.framework does not contain a i386 slice.
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
+  # Flutter.framework does not contain a i386 slice; the simulator slice of
+  # the XCFramework is arm64 only (Apple Silicon).
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386 x86_64' }
+  s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386 x86_64' }
   s.swift_version = '5.0'
 end
