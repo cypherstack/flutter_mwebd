@@ -11,35 +11,66 @@ Future<void> ios(
     throw Exception("IOS binaries require MacOS for building");
   }
 
-  // await buildGoArchiveForIOS(
-  //   isSim: true,
-  //   outputName: "libmwebd_arm64_sim",
-  //   goArch: "arm64",
-  //   toolsPath: toolsPath,
-  // );
-  // await createFramework(
-  //   inputLib: "${repoDir.path}/libmwebd_arm64_sim.a",
-  //   arch: "arm64", // arm64 or amd64
-  //   sdkName: "iphonesimulator", // "iphoneos" or "iphonesimulator"
-  //   header: join(repoDir.path, "libmwebd_arm64_sim.h"),
-  //   outputDir: outputDir.parent.path,
-  //   frameworkName: "flutter_mwebd",
-  // );
-
+  // Build the device slice.
   await buildGoArchiveForIOS(
     isSim: false,
     outputName: "libmwebd_arm64",
     goArch: "arm64",
     toolsPath: toolsPath,
   );
+
+  // Build the simulator slice (arm64 Apple Silicon simulators).
+  await buildGoArchiveForIOS(
+    isSim: true,
+    outputName: "libmwebd_arm64_sim",
+    goArch: "arm64",
+    toolsPath: toolsPath,
+  );
+
+  final staging = Directory(join(repoDir.path, "xcframework_staging"));
+  if (staging.existsSync()) staging.deleteSync(recursive: true);
+  final deviceOut = Directory(join(staging.path, "device"))..createSync(recursive: true);
+  final simOut = Directory(join(staging.path, "simulator"))..createSync(recursive: true);
+
   await createFramework(
     inputLib: "${repoDir.path}/libmwebd_arm64.a",
     arch: "arm64",
     sdkName: "iphoneos", // "iphoneos" or "iphonesimulator"
     header: join(repoDir.path, "libmwebd_arm64.h"),
-    outputDir: outputDir.parent.path,
+    outputDir: deviceOut.path,
     frameworkName: "flutter_mwebd",
   );
+
+  await createFramework(
+    inputLib: "${repoDir.path}/libmwebd_arm64_sim.a",
+    arch: "arm64",
+    sdkName: "iphonesimulator",
+    header: join(repoDir.path, "libmwebd_arm64_sim.h"),
+    outputDir: simOut.path,
+    frameworkName: "flutter_mwebd",
+  );
+
+  // Package both slices as an XCFramework (device and simulator are both
+  // arm64 and cannot be combined with lipo).
+  final xcframeworkPath = join(outputDir.parent.path, "flutter_mwebd.xcframework");
+  final existing = Directory(xcframeworkPath);
+  if (existing.existsSync()) existing.deleteSync(recursive: true);
+  await runAsync("xcodebuild", [
+    "-create-xcframework",
+    "-framework",
+    join(deviceOut.path, "flutter_mwebd.framework"),
+    "-framework",
+    join(simOut.path, "flutter_mwebd.framework"),
+    "-output",
+    xcframeworkPath,
+  ]);
+  staging.deleteSync(recursive: true);
+
+  // Remove any legacy device-only framework next to the podspec: its
+  // directory is on the framework search path and would shadow the
+  // simulator slice of the XCFramework.
+  final legacy = Directory(join(outputDir.parent.path, "flutter_mwebd.framework"));
+  if (legacy.existsSync()) legacy.deleteSync(recursive: true);
 }
 
 Future<void> createFramework({
@@ -63,10 +94,11 @@ Future<void> createFramework({
     Directory outDir,
   ) async {
     final dylibPath = join(outDir.path, frameworkName);
+    final isSim = sdkName == "iphonesimulator";
     await runAsync("clang", [
       "-dynamiclib",
-      "-arch",
-      arch,
+      "-target",
+      isSim ? "$arch-apple-ios16.0-simulator" : "$arch-apple-ios16.0",
       "-isysroot",
       sdk,
       "-Wl,-all_load",
@@ -80,7 +112,7 @@ Future<void> createFramework({
       "-framework",
       "Security",
       "-lresolv",
-      "-mios-version-min=16.0",
+      if (isSim) "-mios-simulator-version-min=16.0" else "-mios-version-min=16.0",
     ]);
   }
 
@@ -104,7 +136,7 @@ Future<void> createFramework({
   l("Writing Info.plist...");
   File(
     join(outFramework.path, "Info.plist"),
-  ).writeAsStringSync(_iosPlist(frameworkName));
+  ).writeAsStringSync(_iosPlist(frameworkName, sdkName == "iphonesimulator"));
 
   l("Framework created at: ${outFramework.path}");
 }
@@ -175,7 +207,7 @@ Future<String> _sdkPath(String sdk) async {
   return result.stdout.toString().trim();
 }
 
-String _iosPlist(String frameworkName) => '''
+String _iosPlist(String frameworkName, [bool isSim = false]) => '''
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -198,7 +230,7 @@ String _iosPlist(String frameworkName) => '''
         <string>1.0</string>
         <key>CFBundleSupportedPlatforms</key>
         <array>
-            <string>iPhoneOS</string>
+            <string>${isSim ? "iPhoneSimulator" : "iPhoneOS"}</string>
         </array>
         <key>CFBundleVersion</key>
         <string>1.0.0</string>
