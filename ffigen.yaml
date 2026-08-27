@@ -1,5 +1,7 @@
 # Run with `dart run ffigen --config ffigen.yaml`.
 name: FlutterMwebdBindings
+ffi-native:
+  assetId: 'package:flutter_mwebd/src/flutter_mwebd_bindings_generated.dart'
 description: |
   Bindings for `src/flutter_mwebd.h`.
 
