@@ -164,7 +164,8 @@ void _validateTarget(CodeConfig config) {
       architecture == Architecture.arm64 ||
           config.iOS.targetSdk == IOSSdk.iPhoneSimulator &&
               architecture == Architecture.x64,
-    OS.linux => architecture == Architecture.x64,
+    OS.linux =>
+      architecture == Architecture.arm64 || architecture == Architecture.x64,
     OS.macOS =>
       architecture == Architecture.arm64 || architecture == Architecture.x64,
     _ => false,
@@ -203,16 +204,16 @@ String _appleArchitecture(Architecture architecture) => switch (architecture) {
   _ => throw UnsupportedError('Unsupported Apple architecture: $architecture'),
 };
 
-String _androidArchitecture(
-  Architecture architecture,
-) => switch (architecture) {
-  Architecture.arm => 'armv7a-linux-androideabi',
-  Architecture.arm64 => 'aarch64-linux-android',
-  Architecture.ia32 => 'i686-linux-android',
-  Architecture.x64 => 'x86_64-linux-android',
-  _ =>
-    throw UnsupportedError('Unsupported Android architecture: $architecture'),
-};
+String _androidArchitecture(Architecture architecture) =>
+    switch (architecture) {
+      Architecture.arm => 'armv7a-linux-androideabi',
+      Architecture.arm64 => 'aarch64-linux-android',
+      Architecture.ia32 => 'i686-linux-android',
+      Architecture.x64 => 'x86_64-linux-android',
+      _ => throw UnsupportedError(
+        'Unsupported Android architecture: $architecture',
+      ),
+    };
 
 Future<String> _sdkPath(String sdk) async {
   return (await _capture('xcrun', ['--sdk', sdk, '--show-sdk-path'])).trim();

@@ -27,5 +27,5 @@ under the Xcode 27 toolchain.
 - Android: arm, arm64, x86, and x64
 - iOS device: arm64
 - iOS simulator: arm64 and x64
-- Linux: x64
+- Linux: arm64 and x64 (host-native builds only)
 - macOS: arm64 and x64
