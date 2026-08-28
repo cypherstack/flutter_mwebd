@@ -64,3 +64,4 @@
 * build the Go library with Native Assets on Android, iOS, Linux, and macOS
 * retain macOS arm64 and x86_64 support
 * stop loading an FFI library on Windows
+* require Flutter 3.44.9 or newer (Dart 3.12), up from Flutter 3.3.0 (Dart 3.7.2)
