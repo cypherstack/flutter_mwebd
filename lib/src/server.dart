@@ -6,33 +6,12 @@ import 'dart:isolate';
 import 'package:ffi/ffi.dart';
 
 import 'exceptions.dart';
-import 'flutter_mwebd_bindings_generated.dart';
+import 'flutter_mwebd_bindings_generated.dart' as native;
 import 'status.dart';
 
-const String _libName = "flutter_mwebd";
-
-/// The dynamic library in which the symbols for [MwebdClientBindings] can be found.
-final DynamicLibrary _dylib = () {
-  if (Platform.isMacOS) {
-    return DynamicLibrary.process();
-  } else if (Platform.isIOS) {
-    return DynamicLibrary.open("$_libName.framework/$_libName");
-  }
-  if (Platform.isAndroid) {
-    // just android things
-    return DynamicLibrary.open("libmwebd.so");
-  }
-  if (Platform.isLinux) {
-    return DynamicLibrary.open("libmwebd.so");
-  }
-  if (Platform.isWindows) {
-    return DynamicLibrary.open("libmwebd.dll");
-  }
-  throw UnsupportedError("Unknown platform: ${Platform.operatingSystem}");
-}();
-
-/// The bindings to the native functions in [_dylib].
-final FlutterMwebdBindings _bindings = FlutterMwebdBindings(_dylib);
+const _windowsMessage =
+    'On Windows, launch the standalone mwebd.exe process instead of using '
+    'MwebdServer lifecycle methods.';
 
 class MwebdServer {
   final String chain;
@@ -59,6 +38,7 @@ class MwebdServer {
   bool get isRunning => _isRunning;
 
   Future<void> createServer() async {
+    _ensureNativeLifecycleAvailable();
     if (_serverId != null) {
       throw MwebdServerAlreadyCreatedException();
     }
@@ -75,7 +55,7 @@ class MwebdServer {
 
     try {
       final result = await Isolate.run(() {
-        return _bindings.CreateServer(chainPtr, dataDirPtr, peerPtr, proxyPtr);
+        return native.CreateServer(chainPtr, dataDirPtr, peerPtr, proxyPtr);
       });
 
       _serverId = result;
@@ -88,6 +68,7 @@ class MwebdServer {
   }
 
   Future<void> startServer() async {
+    _ensureNativeLifecycleAvailable();
     if (_serverId == null) {
       throw MwebdServerNotCreatedException();
     }
@@ -97,11 +78,10 @@ class MwebdServer {
 
     unawaited(
       Isolate.run(() {
-        _bindings.StartServer(_serverId!, serverPort);
+        native.StartServer(_serverId!, serverPort);
       }),
     );
 
-    // TODO: keep? adjust delay? remove?
     await Future.delayed(const Duration(seconds: 4));
 
     _isRunning = true;
@@ -110,6 +90,7 @@ class MwebdServer {
   }
 
   Future<void> stopServer() async {
+    _ensureNativeLifecycleAvailable();
     if (!isRunning) {
       throw MwebdServerNotRunningException();
     }
@@ -118,7 +99,7 @@ class MwebdServer {
     }
 
     await Isolate.run(() {
-      return _bindings.StopServer(_serverId!);
+      return native.StopServer(_serverId!);
     });
 
     _serverId = null;
@@ -126,15 +107,16 @@ class MwebdServer {
   }
 
   Future<Status> getStatus() async {
+    _ensureNativeLifecycleAvailable();
     if (!wasCreated) {
       throw MwebdServerNotCreatedException();
     }
 
     return await Isolate.run(() {
-      final response = calloc<StatusResponse>();
+      final response = calloc<native.StatusResponse>();
 
       try {
-        _bindings.Status(_serverId!, response);
+        native.Status(_serverId!, response);
 
         final status = Status(
           blockHeaderHeight: response.ref.block_header_height,
@@ -148,5 +130,9 @@ class MwebdServer {
         calloc.free(response);
       }
     });
+  }
+
+  void _ensureNativeLifecycleAvailable() {
+    if (Platform.isWindows) throw UnsupportedError(_windowsMessage);
   }
 }
